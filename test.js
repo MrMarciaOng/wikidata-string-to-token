@@ -19,10 +19,10 @@ var sleep = require('system-sleep');
              ]
         } );
         var sheetToProcess = 0 // sheet number you want to process
-        var startIndex= 0 // start row index
-        var endIndex = 69999 // end row index
+        var startIndex= 31576 // start row index
+        var endIndex = 59999 // end row index
         var page = await browser.newPage();
-        var workbook = XLSX.readFile('./astar.xlsx'); //Excel Sheet to read in
+        var workbook = XLSX.readFile('./124.xlsx'); //Excel Sheet to read in
         var sheet_name_list = workbook.SheetNames;
         var temp = XLSX.utils.sheet_to_json(workbook.Sheets[sheet_name_list[sheetToProcess]])
         await page.setViewport({ width, height })
@@ -53,7 +53,7 @@ var sleep = require('system-sleep');
                     timeout: 3000000
                 });
             }
-            if(  temp[x].token != "null"){
+            if(  temp[x].token != "null" && typeof temp[x].token !='undefined'){
 
                 
                 await page.type('input[name="search"]', temp[x].token.toString()) 
@@ -63,7 +63,13 @@ var sleep = require('system-sleep');
                 var listofitems = await page.$$eval('#mw-content-text > div.searchresults > ul > li > div.mw-search-result-heading > a'
                  ,as => as.map(a =>({href:a.href , title : a.title})))
                 if(listofitems.length > 0){
-                    for (let y = 0 ; y < 4 ; y++){
+                    let lessThan ;
+                    if (listofitems.length > 4){
+                        lessThan = 4
+                    }else{
+                        lessThan = listofitems.length
+                    }
+                    for (let y = 0 ; y < lessThan ; y++){
                         if(listofitems[y].title.match(/[a-zA-Z ]+/).toString().replace(/^[ ]+|[ ]+$/g,'')== temp[x].token){
                             if(listofitems[y].href.match("https://www.wikidata.org/wiki/(.*)")[1].toString().substring(0, 1)!='P')
                             temp[x].Wikidata = "B-"+listofitems[y].href.match("https://www.wikidata.org/wiki/(.*)")[1]
